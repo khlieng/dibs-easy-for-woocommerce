@@ -112,8 +112,8 @@ class DIBS_Easy_Gateway extends WC_Payment_Gateway {
 		$change_payment_method = filter_input( INPUT_GET, 'change_payment_method', FILTER_SANITIZE_STRING );
 		if ( ! empty( $change_payment_method ) ) {
 			$request  = new DIBS_Requests_Create_DIBS_Order( 'redirect', $order_id );
-			$response = json_decode( $request->request() );
-			if ( array_key_exists( 'hostedPaymentPageUrl', $response ) ) {
+			$response = json_decode( $request->request(), true );
+			if ( isset( $response['hostedPaymentPageUrl'] ) ) {
 				// All good. Redirect customer to DIBS payment page.
 				$order->add_order_note( __( 'Customer redirected to Nets payment page.', 'dibs-easy-for-woocommerce' ) );
 				return array(
