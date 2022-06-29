@@ -238,19 +238,22 @@ class Nets_Easy_Gateway extends WC_Payment_Gateway {
 	 */
 	protected function process_redirect_handler( $order_id, $response ) {
 		$order = wc_get_order( $order_id );
-		if ( array_key_exists( 'hostedPaymentPageUrl', $response ) ) {
-			// All good. Redirect customer to DIBS payment page.
-			$order->add_order_note( __( 'Customer redirected to Nets payment page.', 'dibs-easy-for-woocommerce' ) );
-			update_post_meta( $order_id, '_dibs_payment_id', $response['paymentId'] ); // phpcs:ignore
 
+		if ( is_wp_error( $response ) || ! isset( $response['hostedPaymentPageUrl'] ) ) {
+
+			dibs_easy_print_error_message( $response );
 			return array(
-				'result'   => 'success',
-				'redirect' => add_query_arg( 'language', wc_dibs_get_locale(), $response['hostedPaymentPageUrl'] ),
+				'result' => 'error',
 			);
 		}
 
+		// All good. Redirect customer to DIBS payment page.
+		$order->add_order_note( __( 'Customer redirected to Nets payment page.', 'dibs-easy-for-woocommerce' ) );
+		update_post_meta($order_id, '_dibs_payment_id', $response['paymentId']); // phpcs:ignore
+
 		return array(
-			'result' => 'error',
+			'result'   => 'success',
+			'redirect' => add_query_arg( 'language', wc_dibs_get_locale(), $response['hostedPaymentPageUrl'] ),
 		);
 	}
 
